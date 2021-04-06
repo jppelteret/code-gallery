@@ -45,7 +45,6 @@
 #include <deal.II/grid/manifold_lib.h>
 #include <deal.II/grid/tria_accessor.h>
 #include <deal.II/grid/tria_iterator.h>
-#include <deal.II/grid/tria_boundary_lib.h>
 #include <deal.II/dofs/dof_handler.h>
 #include <deal.II/dofs/dof_accessor.h>
 #include <deal.II/dofs/dof_tools.h>
@@ -783,7 +782,7 @@ namespace LinearElastoplasticity
     {
       material->update_end_timestep();
     }
-    const Material_Base<dim> * const
+    Material_Base<dim> *
     get_material() const
     {
       Assert(material, ExcInternalError());
@@ -1008,7 +1007,7 @@ namespace LinearElastoplasticity
     }
     else if (parameters.geometry_type == "Tensile specimen")
     {
-      const std::string filename = "tensile_specimen.inp";
+      const std::string filename = "mesh/tensile_specimen.inp";
       std::ifstream input (filename.c_str());
 
       GridIn<dim> gridin;
@@ -1258,7 +1257,7 @@ namespace LinearElastoplasticity
         component_mask_x.set(0, true);
         VectorTools::interpolate_boundary_values (dof_handler,
                                                   1,
-                                                  ZeroFunction<dim>(dim),
+                                                  Functions::ZeroFunction<dim>(dim),
                                                   constraints,
                                                   component_mask_x);
       }
@@ -1272,7 +1271,7 @@ namespace LinearElastoplasticity
         * (time.current()/time.end());
         VectorTools::interpolate_boundary_values (dof_handler,
                                                   2,
-                                                  ConstantFunction<dim>(total_displacement,dim),
+                                                  Functions::ConstantFunction<dim>(total_displacement,dim),
                                                   constraints,
                                                   component_mask_x);
       }
@@ -1285,7 +1284,7 @@ namespace LinearElastoplasticity
         component_mask_x.set(0, true);
         VectorTools::interpolate_boundary_values (dof_handler,
                                                   1,
-                                                  ZeroFunction<dim>(dim),
+                                                  Functions::ZeroFunction<dim>(dim),
                                                   constraints,
                                                   component_mask_x);
       }
@@ -1295,7 +1294,7 @@ namespace LinearElastoplasticity
         component_mask_y.set(1, true);
         VectorTools::interpolate_boundary_values (dof_handler,
                                                   3,
-                                                  ZeroFunction<dim>(dim),
+                                                  Functions::ZeroFunction<dim>(dim),
                                                   constraints,
                                                   component_mask_y);
       }
@@ -1305,7 +1304,7 @@ namespace LinearElastoplasticity
         component_mask_z.set(2, true);
         VectorTools::interpolate_boundary_values (dof_handler,
                                                   5,
-                                                  ZeroFunction<dim>(dim),
+                                                  Functions::ZeroFunction<dim>(dim),
                                                   constraints,
                                                   component_mask_z);
       }
@@ -1319,7 +1318,7 @@ namespace LinearElastoplasticity
         * (time.current()/time.end());
         VectorTools::interpolate_boundary_values (dof_handler,
                                                   6,
-                                                  ConstantFunction<dim>(total_displacement,dim),
+                                                  Functions::ConstantFunction<dim>(total_displacement,dim),
                                                   constraints,
                                                   component_mask_x);
       }
@@ -1329,7 +1328,7 @@ namespace LinearElastoplasticity
         component_mask_yz.set(0, false);
         VectorTools::interpolate_boundary_values (dof_handler,
                                                   6,
-                                                  ZeroFunction<dim>(dim),
+                                                  Functions::ZeroFunction<dim>(dim),
                                                   constraints,
                                                   component_mask_yz);
       }
@@ -1411,7 +1410,7 @@ namespace LinearElastoplasticity
       quadrature_point_history (quadrature_point_history)
   {
     const FE_Q<dim> fe_projection (1);
-    const QTrapez<dim> quadrature_projection;
+    const QTrapezoid<dim> quadrature_projection;
     projection_matrix_qpoint_to_support_point = FullMatrix<double> (
         quadrature_projection.size(),
         quadrature_cell.size());
@@ -1434,7 +1433,7 @@ namespace LinearElastoplasticity
                inputs.solution_values.size()));
 
     const typename DoFHandler<dim>::active_cell_iterator cell
-      = inputs.template get_cell<DoFHandler<dim>>();
+      = inputs.template get_cell<dim>();
 
     // number of support points (nodes) to project to
     const unsigned int n_support_points = projection_matrix_qpoint_to_support_point.n_rows();
